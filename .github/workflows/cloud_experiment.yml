@@ -83,7 +83,7 @@ jobs:
     - name: Install SSH key
       uses: webfactory/ssh-agent@v0.7.0
       with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_CCCANADA }}
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_CCCANDA }}
         
     - name: Deploy and execute on remote server
       env:
