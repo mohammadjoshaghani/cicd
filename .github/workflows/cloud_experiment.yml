@@ -85,15 +85,22 @@ jobs:
       with:
         ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_CCCANDA }}
         
-    - name: Deploy and execute on remote server
-      env:
-        REMOTE_USER: ${{ secrets.REMOTE_USER }}
-        REMOTE_PATH: "/home/mjo/projects/def-jenasanj/mjo"
-      run: |
-        ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@cedar.allinacecan.ca << 'EOF'
-        cd ${REMOTE_PATH}
-        echo "Cloning new repository..."
-        git clone git@github.com:mohammadjoshaghani/cicd.git
-        cd cicd
-        python first.py
-        EOF        
+    # - name: Deploy and execute on remote server
+    #   env:
+    #     REMOTE_USER: ${{ secrets.REMOTE_USER }}
+    #     REMOTE_PATH: "/home/mjo/projects/def-jenasanj/mjo"
+    #   run: |
+    #     ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@cedar.allinacecan.ca << 'EOF'
+    #     cd ${REMOTE_PATH}
+    #     echo "Cloning new repository..."
+    #     git clone git@github.com:mohammadjoshaghani/cicd.git
+    #     cd cicd
+    #     python first.py
+    #     EOF        
+
+    -   name: Validate SSH Key
+        run: |
+            echo "${{ secrets.SSH_PRIVATE_KEY_CCCANADA }}" > key.pem
+            chmod 600 key.pem
+            ssh-keygen -l -f key.pem  # Check if key is valid  
+    
