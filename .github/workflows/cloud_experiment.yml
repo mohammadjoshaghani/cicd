@@ -86,8 +86,7 @@ jobs:
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY_CCCANADA }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        ssh-keyscan cedar.allinacecan.ca >> ~/.ssh/known_hosts
-
+        
     - name: Run Remote Commands
       env:
         REMOTE_USER: ${{ secrets.REMOTE_USER }}
