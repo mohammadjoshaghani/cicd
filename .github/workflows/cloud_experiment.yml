@@ -95,9 +95,9 @@ jobs:
         REMOTE_PATH: "/home/mjo/projects/def-jenasanj/mjo"      
     - name: ssh and Execute Python script on remote server
       run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@cedar.allinacecan.ca    
-      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@cedar.allinacecan.ca &&   
         cd ${{REMOTE_PATH}} &&
+        echo "Cloning new repository..."
         git clone git@github.com:mohammadjoshaghani/cicd.git &&
         cd cicd &&
         python first.py
