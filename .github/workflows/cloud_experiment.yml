@@ -66,10 +66,6 @@
 #         # Retrieve results from the cloud
 #       scp -r "$REMOTE_USER@$REMOTE_HOST:$RESULTS_DIR_REMOTE/" "$RESULTS_DIR_LOCAL/"
 
-
-
-
-
 name: Execute on Compute Canada
 
 on:
@@ -87,18 +83,17 @@ jobs:
     - name: Install SSH key
       uses: webfactory/ssh-agent@v0.7.0
       with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_CCCANADA }} # Store your SSH private key as a secret in GitHub
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_CCCANADA }}
         
-    - name: Copy files to remote server
+    - name: Deploy and execute on remote server
       env:
-        REMOTE_USER: ${{ secrets.REMOTE_USER }} # Store your cloud server username as a secret
-        REMOTE_PATH: "/home/mjo/projects/def-jenasanj/mjo"      
-    - name: ssh and Execute Python script on remote server
+        REMOTE_USER: ${{ secrets.REMOTE_USER }}
+        REMOTE_PATH: "/home/mjo/projects/def-jenasanj/mjo"
       run: |
-        ssh -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@cedar.allinacecan.ca &&   
-        cd ${{REMOTE_PATH}} &&
+        ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@cedar.allinacecan.ca << 'EOF'
+        cd ${REMOTE_PATH}
         echo "Cloning new repository..."
-        git clone git@github.com:mohammadjoshaghani/cicd.git &&
-        cd cicd &&
+        git clone git@github.com:mohammadjoshaghani/cicd.git
+        cd cicd
         python first.py
-        # Add any other commands you want to run on the remote server      
+        EOF        
