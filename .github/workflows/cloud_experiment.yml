@@ -86,13 +86,13 @@ jobs:
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY_CCCANADA }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        
+
     - name: Run Remote Commands
       env:
         REMOTE_USER: ${{ secrets.REMOTE_USER }}
         REMOTE_PATH: "/home/mjo/projects/def-jenasanj/mjo"
       run: |
-        ssh -v -o StrictHostKeyChecking=no ${REMOTE_USER}@cedar.allinacecan.ca << 'EOF'
+        ssh -v -o StrictHostKeyChecking=no ${REMOTE_USER}@cedar.alliancecan.ca << 'EOF'
         cd ${REMOTE_PATH}
         echo "Running on $(hostname)"
         git clone git@github.com:mohammadjoshaghani/cicd.git
