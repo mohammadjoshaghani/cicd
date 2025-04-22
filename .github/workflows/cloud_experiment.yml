@@ -66,6 +66,7 @@
 #         # Retrieve results from the cloud
 #       scp -r "$REMOTE_USER@$REMOTE_HOST:$RESULTS_DIR_REMOTE/" "$RESULTS_DIR_LOCAL/"
 
+
 name: Execute on Compute Canada
 
 on:
@@ -79,28 +80,24 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-      
-    - name: Install SSH key
-      uses: webfactory/ssh-agent@v0.7.0
-      with:
-        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_CCCANDA }}
-        
-    # - name: Deploy and execute on remote server
-    #   env:
-    #     REMOTE_USER: ${{ secrets.REMOTE_USER }}
-    #     REMOTE_PATH: "/home/mjo/projects/def-jenasanj/mjo"
-    #   run: |
-    #     ssh -o StrictHostKeyChecking=no ${REMOTE_USER}@cedar.allinacecan.ca << 'EOF'
-    #     cd ${REMOTE_PATH}
-    #     echo "Cloning new repository..."
-    #     git clone git@github.com:mohammadjoshaghani/cicd.git
-    #     cd cicd
-    #     python first.py
-    #     EOF        
 
-    -   name: Validate SSH Key
-        run: |
-            echo "${{ secrets.SSH_PRIVATE_KEY_CCCANADA }}" > key.pem
-            chmod 600 key.pem
-            ssh-keygen -l -f key.pem  # Check if key is valid  
+    - name: Add SSH Key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY_CCCANADA }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan cedar.allinacecan.ca >> ~/.ssh/known_hosts
+
+    - name: Run Remote Commands
+      env:
+        REMOTE_USER: ${{ secrets.REMOTE_USER }}
+        REMOTE_PATH: "/home/mjo/projects/def-jenasanj/mjo"
+      run: |
+        ssh -v -o StrictHostKeyChecking=no ${REMOTE_USER}@cedar.allinacecan.ca << 'EOF'
+        cd ${REMOTE_PATH}
+        echo "Running on $(hostname)"
+        git clone git@github.com:mohammadjoshaghani/cicd.git
+        cd cicd
+        python first.py
+        EOF
     
