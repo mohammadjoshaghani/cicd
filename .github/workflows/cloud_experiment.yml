@@ -1,0 +1,104 @@
+# name: Cloud Experiment Workflow
+# on:
+#   push:
+#     branches: [ "main" ] # Trigger this workflow when code is pushed to the 'main' branch
+
+# # set of tasks to be executed       
+# jobs:
+#   build_and_deploy:
+#     runs-on: ubuntu-latest # Use a Linux environment to run the workflow
+
+#     steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v4 # Get your repository code
+
+#     - name: Set up Python
+#       uses: actions/setup-python@v5
+#       with:
+#         python-version: '3.x'
+
+#     - name: Install dependencies
+#       run: |
+#         python -m pip install --upgrade pip
+#         pip install -r requirements.txt
+
+#     - name: Lint with flake8
+#       run: |
+#         pip install flake8
+#         flake8 .
+
+#     - name: Run unit tests (Optional)
+#       run: |
+#         # Install your testing framework (e.g., pytest)
+#         # pip install pytest
+#         # Run your tests
+#         # pytest tests/
+
+#     - name: Deploy to cloud and run experiment
+#       env:
+#         SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }} # Store your SSH private key as a secret in GitHub
+#         REMOTE_HOST: ${{ secrets.REMOTE_HOST }} # Store your cloud server IP or hostname as a secret
+#         REMOTE_USER: ${{ secrets.REMOTE_USER }} # Store your cloud server username as a secret
+#         REMOTE_WORKDIR: '/home/your_user/experiment' # Adjust as needed
+#         RESULTS_DIR_REMOTE: '/home/your_user/experiment/results'
+#         RESULTS_DIR_LOCAL: './cloud_results'
+#       run: |
+#         mkdir -p "$RESULTS_DIR_LOCAL"
+
+#         # Add SSH key to agent (for passwordless login)
+#         mkdir -p ~/.ssh
+#         echo "$SSH_PRIVATE_KEY" | base64 -d > ~/.ssh/id_rsa
+#         chmod 600 ~/.ssh/id_rsa
+#         ssh-keyscan -H "$REMOTE_HOST" >> ~/.ssh/known_hosts
+
+#         # Create remote working directory
+#         ssh -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" "mkdir -p $REMOTE_WORKDIR"
+
+#         # Copy code to the cloud server
+#         rsync -avz . "$REMOTE_USER@$REMOTE_HOST:$REMOTE_WORKDIR" --exclude='cloud_results' --exclude='.git' --exclude='.github'
+
+#         # Set up environment and run the experiment on the cloud
+#         ssh -o StrictHostKeyChecking=no "$REMOTE_USER@$REMOTE_HOST" "
+#           cd $REMOTE_WORKDIR
+#           python run_experiment.py
+#         "
+
+#         # Retrieve results from the cloud
+#       scp -r "$REMOTE_USER@$REMOTE_HOST:$RESULTS_DIR_REMOTE/" "$RESULTS_DIR_LOCAL/"
+
+
+
+
+
+name: Execute on Compute Canada
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Install SSH key
+      uses: webfactory/ssh-agent@v0.7.0
+      with:
+        ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_CCCANADA }} # Store your SSH private key as a secret in GitHub
+        
+    - name: Copy files to remote server
+      env:
+        REMOTE_USER: ${{ secrets.REMOTE_USER }} # Store your cloud server username as a secret
+        REMOTE_PATH: "/home/mjo/projects/def-jenasanj/mjo"      
+    - name: ssh and Execute Python script on remote server
+      run: |
+        ssh -o StrictHostKeyChecking=no ${{ secrets.REMOTE_USER }}@cedar.allinacecan.ca    
+      run: |
+        cd ${{REMOTE_PATH}} &&
+        git clone git@github.com:mohammadjoshaghani/cicd.git &&
+        cd cicd &&
+        python first.py
+        # Add any other commands you want to run on the remote server      
